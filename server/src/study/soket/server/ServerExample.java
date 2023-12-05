@@ -1,8 +1,6 @@
 package study.soket.server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -29,8 +27,8 @@ public class ServerExample {
                 output = socket.getOutputStream(); // для отправки данных по socket соединению
                 input = socket.getInputStream(); // для получения данных по socket соединению
 
-                // ObjectInputStream objectInput = new ObjectInputStream(input); // десериализация
-                // ObjectOutputStream objectOutput = new ObjectOutputStream(output); // сериализация
+               ObjectInputStream objectInput = new ObjectInputStream(input); // десериализация
+               ObjectOutputStream objectOutput = new ObjectOutputStream(output); // сериализация
 
                 // ожидание, когда в inputStream появятся данные
                 System.out.println(input.read()); // чтение данных из inputStream
