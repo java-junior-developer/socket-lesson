@@ -16,7 +16,7 @@ public class Server implements Runnable {
     public Server(int port) {
         this.port = port;
     }
-
+    AllComands commands = new AllComands();
     @Override
     public void run() {
         try (ServerSocket SVsocket = new ServerSocket(2222)) {
@@ -26,7 +26,7 @@ public class Server implements Runnable {
 
                     Socket socket = SVsocket.accept();
                     ConnectionService conn = new ConnectionService(socket);
-                    AllComands commands = new AllComands();
+
                     Message message = conn.readMessage();
                     if (commands.getCommands().keySet().contains(message.getText())) {
 
