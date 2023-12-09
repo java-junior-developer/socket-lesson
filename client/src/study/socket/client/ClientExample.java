@@ -21,7 +21,7 @@ public class ClientExample {
         OutputStream output = null;
         InputStream input = null;
         try {
-            // socket.bind(local);
+            // socket.bind(local);  // привязка локального порта
             System.out.println(socket.isBound());
 
             socket.connect(remote, 10000); // соединение с удаленным сервером
@@ -29,7 +29,7 @@ public class ClientExample {
 
             System.out.println(socket.getReceiveBufferSize());
             System.out.println(socket.getSendBufferSize());
-            System.out.println(socket.getLocalSocketAddress());
+            System.out.println(socket.getLocalSocketAddress()); // получить локальный
             System.out.println(socket.getRemoteSocketAddress());
 
             output = socket.getOutputStream();

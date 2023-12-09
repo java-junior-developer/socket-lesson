@@ -8,33 +8,33 @@ import java.net.Socket;
 
 public class ServerExample {
     public void exampleVoid() {
-        ServerSocket serverSocket = null; // РїРѕР·РІРѕР»РёС‚ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРµРґРёРЅРµРЅРёРµ
-        // СЃ РєР»РёРµРЅС‚СЃРєРёРјРё РїСЂРѕРіСЂР°РјРјР°РјРё
-        OutputStream output = null; // РїРѕР·РІРѕР»РёС‚ РѕС‚РїСЂР°РІР»СЏС‚СЊ РґР°РЅРЅС‹Рµ
-        InputStream input = null; // РїРѕР·РІРѕР»РёС‚ РїРѕР»СѓС‡Р°С‚СЊ РґР°РЅРЅС‹Рµ
+        ServerSocket serverSocket = null; // позволит установить соединение
+        // с клиентскими программами
+        OutputStream output = null; // позволит отправлять данные
+        InputStream input = null; // позволит получать данные
 
 
         try {
-            serverSocket = new ServerSocket(2222); // РїСЂРёРІСЏР·РєР° СЃРµСЂРІРµСЂРЅРѕР№ РїСЂРѕРіСЂР°РјРјС‹ Рє СѓРєР°Р·Р°РЅРЅРѕРјСѓ РїРѕСЂС‚Сѓ.
-            // ServerSocket СЃР»СѓС€Р°РµС‚ СѓРєР°Р·Р°РЅРЅС‹Р№ РїРѕСЂС‚...
-            System.out.println("РЎРµСЂРІРµСЂ Р·Р°РїСѓС‰РµРЅ");
+            serverSocket = new ServerSocket(2222); // привязка серверной программы к указанному порту.
+            // ServerSocket слушает указанный порт...
+            System.out.println("Сервер запущен");
 
             while (true) {
-                Socket socket = serverSocket.accept(); // ...Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ СЃРѕРµРґРёРЅРµРЅРёРµ РїСЂРё РїРѕСЏРІР»РµРЅРёРё РєР»РёРµРЅС‚Р°
-                System.out.println("РќРѕРІРѕРµ РїРѕРґРєР»СЋС‡РµРЅРёРµ");
+                Socket socket = serverSocket.accept(); // ...и устанавливает соединение при появлении клиента
+                System.out.println("Новое подключение");
 
                 System.out.println(socket.getLocalSocketAddress());
                 System.out.println(socket.getRemoteSocketAddress());
 
-                output = socket.getOutputStream(); // РґР»СЏ РѕС‚РїСЂР°РІРєРё РґР°РЅРЅС‹С… РїРѕ socket СЃРѕРµРґРёРЅРµРЅРёСЋ
-                input = socket.getInputStream(); // РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РїРѕ socket СЃРѕРµРґРёРЅРµРЅРёСЋ
+                output = socket.getOutputStream(); // для отправки данных по socket соединению
+                input = socket.getInputStream(); // для получения данных по socket соединению
 
-                // ObjectInputStream objectInput = new ObjectInputStream(input); // РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ
-                // ObjectOutputStream objectOutput = new ObjectOutputStream(output); // СЃРµСЂРёР°Р»РёР·Р°С†РёСЏ
+                // ObjectInputStream objectInput = new ObjectInputStream(input); // десериализация
+                // ObjectOutputStream objectOutput = new ObjectOutputStream(output); // сериализация
 
-                // РѕР¶РёРґР°РЅРёРµ, РєРѕРіРґР° РІ inputStream РїРѕСЏРІСЏС‚СЃСЏ РґР°РЅРЅС‹Рµ
-                System.out.println(input.read()); // С‡С‚РµРЅРёРµ РґР°РЅРЅС‹С… РёР· inputStream
-                output.write(2); // РѕС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С… РІ outputStream
+                // ожидание, когда в inputStream появятся данные
+                System.out.println(input.read()); // чтение данных из inputStream
+                output.write(2); // отправка данных в outputStream
             }
         } catch (IOException e) {
             e.printStackTrace();
