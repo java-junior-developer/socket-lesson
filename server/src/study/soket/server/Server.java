@@ -12,9 +12,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 public class Server implements Runnable {
-    int port;
-    MyExecutorService myExecutorService;
-    CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet;
+    private int port;
+    private MyExecutorService myExecutorService;
+    private CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet;
 
     public Server(int port) {
         this.port = port;
@@ -22,7 +22,7 @@ public class Server implements Runnable {
         this.copyOnWriteArraySet =new CopyOnWriteArraySet<>();
     }
 
-    AllComands commands = new AllComands();
+   private  AllComands commands = new AllComands();
 
     @Override
     public void run() {
