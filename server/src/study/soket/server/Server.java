@@ -31,6 +31,7 @@ public class Server implements Runnable {
             while (true) {
                 try {
                     Socket socket = SVsocket.accept();
+                    copyOnWriteArraySet.add(socket);
                     myExecutorService.execute(() -> handler(socket));
 
                 } catch (IOException e) {
@@ -55,6 +56,11 @@ public class Server implements Runnable {
             Message message = null;
             try {
                 message = conn.readMessage();
+                for(Socket socket1:copyOnWriteArraySet){
+                    if(socket1!=socket1){
+                        ConnectionService conn1= new ConnectionService(socket1);
+                        conn1.writeMessage(message);
+                    }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (ClassNotFoundException e) {
