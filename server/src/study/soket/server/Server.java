@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class Server implements Runnable {
     int port;
     MyExecutorService myExecutorService;
-    CopyOnWriteArraySet copyOnWriteArraySet;
+    CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet;
 
     public Server(int port) {
         this.port = port;
@@ -49,6 +49,7 @@ public class Server implements Runnable {
             ConnectionService conn = null;
             try {
                 conn = new ConnectionService(socket);
+                copyOnWriteArraySet.add(conn);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -56,11 +57,11 @@ public class Server implements Runnable {
             Message message = null;
             try {
                 message = conn.readMessage();
-                for(Socket socket1:copyOnWriteArraySet){
-                    if(socket1!=socket1){
-                        ConnectionService conn1= new ConnectionService(socket1);
-                        conn1.writeMessage(message);
-                    }
+               for (ConnectionService conn1 : copyOnWriteArraySet) {
+                if (conn1 != conn) {
+                    conn1.writeMessage(message);
+                }
+            }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (ClassNotFoundException e) {
