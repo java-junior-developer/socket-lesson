@@ -8,8 +8,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class Client implements Runnable {
-    InetSocketAddress inetSocketAddress;
-    ConnectionService connectionService;
+    private InetSocketAddress inetSocketAddress;
+    private ConnectionService connectionService;
 
     public Client(InetSocketAddress inetSocketAddress, ConnectionService connectionService) {
         this.inetSocketAddress = inetSocketAddress;
