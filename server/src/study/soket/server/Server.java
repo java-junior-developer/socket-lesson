@@ -22,68 +22,27 @@ public class Server implements Runnable {
         this.copyOnWriteArraySet =new CopyOnWriteArraySet<>();
     }
 
-   private  AllComands commands = new AllComands();
-
-    @Override
     public void run() {
         try (ServerSocket SVsocket = new ServerSocket(2222)) {
             System.out.println("Server running");
             while (true) {
-                try {
-                    Socket socket = SVsocket.accept();
-                    copyOnWriteArraySet.add(socket);
-                    myExecutorService.execute(() -> handler(socket));
 
+                Socket socket = null;
+                try {
+                    socket = SVsocket.accept();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
+                try {
+                    myExecutorService.execute(new CreateHandler(socket, copyOnWriteArraySet));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void handler(Socket socket) {
-            ConnectionService conn = null;
-            try {
-                conn = new ConnectionService(socket);
-                copyOnWriteArraySet.add(conn);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            Message message = null;
-            try {
-                message = conn.readMessage();
-               for (ConnectionService conn1 : copyOnWriteArraySet) {
-                if (conn1 != conn) {
-                    conn1.writeMessage(message);
-                }
-            }
-            } catch (IOException e) {
-                copyOnWriteArraySet.remove(conn);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            if (commands.getCommands().keySet().contains(message.getText())) {
-
-                commands.getCommands().get(message.getText()).execute();
-
-            } else {
-
-                System.out.println(message.getText());
-                try {
-                    conn.writeMessage(new Message("from server"));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            try {
-                conn.close();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
+  
+}
