@@ -63,7 +63,7 @@ public class Server implements Runnable {
                 }
             }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                copyOnWriteArraySet.remove(conn);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
