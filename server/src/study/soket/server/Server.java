@@ -9,13 +9,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 public class Server implements Runnable {
     int port;
+    MyExecutorService myExecutorService;
 
     public Server(int port) {
         this.port = port;
+        this.myExecutorService = new MyExecutorService (1,8,100,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(100));
     }
+
     AllComands commands = new AllComands();
     @Override
     public void run() {
