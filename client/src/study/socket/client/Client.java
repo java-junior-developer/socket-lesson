@@ -23,7 +23,7 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
-        Thread tread1 = new Thread(() -> {
+        Thread thread1 = new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
                 String line;
                 while ((line = reader.readLine()) != "exit") {
@@ -58,6 +58,9 @@ public class Client implements Runnable {
 
 
         });
+        thread1.start();
+        thread2.start();
+
 
     }
 }
