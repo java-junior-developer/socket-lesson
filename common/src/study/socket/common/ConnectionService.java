@@ -1,8 +1,5 @@
 package study.socket.common;
 
-import study.socket.common.commands.AllComands;
-import study.socket.common.commands.Command;
-import study.socket.common.commands.Commands;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -19,31 +16,44 @@ public class ConnectionService implements AutoCloseable {
     private ObjectInputStream input;
 
     public ConnectionService(Socket socket) throws IOException {
-        this.socket = Objects.requireNonNull(socket,"socket is null");
+        this.socket = Objects.requireNonNull(socket, "socket is null");
         this.output = new ObjectOutputStream(socket.getOutputStream());
         this.input = new ObjectInputStream(socket.getInputStream());
 
     }
-    public void writeMessage(Message message) throws IOException {
-        message.setSendAt(LocalDate.now());
-        output.writeObject(message);
-        output.flush();
-    }
-    public Message readMessage() throws IOException, ClassNotFoundException {
-          return (Message) input.readObject();
 
-    }
-
-
-    @Override
-    public void close() throws Exception {
-        try {
-            input.close();
-            output.close();
-            socket.close();
-        }catch(IOException  e){
-            System.out.println(e.getMessage());
-            System.out.println("ошибка во время закрытия ресурсов");
+    public void writeMessage(ClientInput input) throws IOException {
+        if (input.getMessage() != null) {
+            input.getMessage().setSendAt(LocalDate.now());
+            output.writeObject(input.getMessage());
+            output.flush();
+        } else {
+            output.writeObject(input.getFile());
+            output.flush();
         }
     }
-}
+
+    public ClientInput readMessage() throws IOException, ClassNotFoundException {
+        ClientInput output = new ClientInput();
+        if (Message.class.equals(input.readObject())) {
+
+            output.setMessage((Message) input.readObject());
+        } else {
+            output.setFile((SendFile) input.readObject());
+        }
+        return output;
+    }
+
+
+        @Override
+        public void close () throws Exception {
+            try {
+                input.close();
+                output.close();
+                socket.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                System.out.println("ошибка во время закрытия ресурсов");
+            }
+        }
+    }
