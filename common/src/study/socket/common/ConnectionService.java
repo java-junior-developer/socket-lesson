@@ -22,38 +22,29 @@ public class ConnectionService implements AutoCloseable {
 
     }
 
-    public void writeMessage(ClientInput input) throws IOException {
-        if (input.getMessage() != null) {
-            input.getMessage().setSendAt(LocalDate.now());
-            output.writeObject(input.getMessage());
-            output.flush();
-        } else {
-            output.writeObject(input.getFile());
+    public void writeMessage(Message input) throws IOException {
+        if (input.getText() != null) {
+            input.setSendAt(LocalDate.now());
+            output.writeObject(input);
             output.flush();
         }
+
     }
 
-    public ClientInput readMessage() throws IOException, ClassNotFoundException {
-        ClientInput output = new ClientInput();
-        if (Message.class.equals(input.readObject())) {
-
-            output.setMessage((Message) input.readObject());
-        } else {
-            output.setFile((SendFile) input.readObject());
-        }
-        return output;
+    public Message readMessage() throws IOException, ClassNotFoundException {
+        return (Message) input.readObject();
     }
 
 
-        @Override
-        public void close () throws Exception {
-            try {
-                input.close();
-                output.close();
-                socket.close();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-                System.out.println("ошибка во время закрытия ресурсов");
-            }
+    @Override
+    public void close() throws Exception {
+        try {
+            input.close();
+            output.close();
+            socket.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            System.out.println("ошибка во время закрытия ресурсов");
         }
     }
+}

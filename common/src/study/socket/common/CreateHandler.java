@@ -28,52 +28,58 @@ public class CreateHandler implements Runnable {
 
     @Override
     public void run() {
-        try {
-            ClientInput client = new ClientInput();
+        while (true) {
+            Message message = null;
             try {
-                client = conn.readMessage();
+
+                message = conn.readMessage();
             } catch (IOException e) {
-                System.out.println("не удалось прочитать сообщение");
-                ;
+                System.out.println("Не удалось прочитать сообщение");
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            if (client.getMessage() != null) {
-                Message message = client.getMessage();
+
+            if (message.getText() != null) {
                 if ("exit".equals(message.getText())) {
                     return;
-                } else {
+                } else if (!message.getText().endsWith(".txt")) {
                     System.out.println(message.getText());
+                    try {
+                        getMessageToAllClients(copyOnWriteArraySet, copyOnWriteArraySetF, message);
+                    } catch (IOException e) {
+                        System.out.println("не получилось прочитать данные с сервера");
+                    }
                 }
-                getMessageToAllClients(copyOnWriteArraySet,copyOnWriteArraySetF, client);
+
             } else {
-                getMessageToAllClients(copyOnWriteArraySet,copyOnWriteArraySetF, client);
+                try {
+                    getMessageToAllClients(copyOnWriteArraySet, copyOnWriteArraySetF, message);
+                } catch (IOException e) {
+                    System.out.println("не получилось прочитать данные с сервера");
+                }
             }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
         }
     }
 
-    private void getMessageToAllClients(CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet, CopyOnWriteArraySet<SendFile> copyOnWriteArraySetF, ClientInput client) throws IOException {
-        if (client.getFile() != null) {
-            if ("set".equalsIgnoreCase(client.getFile().getAction())) {
-                copyOnWriteArraySetF.add(client.getFile());
+    private void getMessageToAllClients(CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet, CopyOnWriteArraySet<SendFile> copyOnWriteArraySetF,Message message) throws IOException {
+        if (message.getText().endsWith("txt")) {
+            SendFile sendFile = new SendFile(message.getText());
+            if ("set".equalsIgnoreCase(sendFile.getAction())) {
+                copyOnWriteArraySetF.add(sendFile);
                 for (ConnectionService con : copyOnWriteArraySet) {
 
-                    con.writeMessage(client);
+                    con.writeMessage(message);
 
                 }
             } else {
                 for (SendFile send : copyOnWriteArraySetF) {
-                    ClientInput clientInput = new ClientInput();
-                    clientInput.setFile(send);
-                    conn.writeMessage(clientInput);
+                   conn.writeMessage(send);
                 }
 
             }
         } else {
             for (ConnectionService con : copyOnWriteArraySet) {
-                con.writeMessage(client);
+                con.writeMessage(message);
             }
         }
 

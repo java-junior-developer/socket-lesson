@@ -1,6 +1,5 @@
 package study.socket.client;
 
-import study.socket.common.ClientInput;
 import study.socket.common.ConnectionService;
 import study.socket.common.Message;
 import study.socket.common.SendFile;
@@ -31,47 +30,50 @@ public class Client implements Runnable {
                 String line;
                 while ((line = reader.readLine()) != "exit") {
                     if (line.endsWith(".txt")) {
-                        ClientInput client = new ClientInput();
-                        client.setFile(new SendFile(line));
-                        connectionService.writeMessage(client);
-                        connectionService.close();
-                    } else {
-                        ClientInput client = new ClientInput();
-                        client.setMessage(new Message(line));
-                        connectionService.writeMessage(client);
-                        connectionService.close();
+                       Message msg = new Message(line);
+                        connectionService.writeMessage(msg);
+
                     }
                 }
             } catch (IOException e) {
+                System.out.println("не удалось прочитать");
+                try {
+                    connectionService.close();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
                 throw new RuntimeException(e);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
         Thread thread2 = new Thread(() -> {
+            while(true) {
 
-
-            try {
-
-                String line = null;
                 try {
-                    ClientInput client = connectionService.readMessage();
-                   if (client.getMessage()!=null){
-                       line = client.getMessage().getText();
-                   }else if ("set".equalsIgnoreCase(client.getFile().getAction())){
-                       line = client.getFile().getPath() + " " + client.getFile().getDescription();
-                   }
-                    System.out.println(line);
-                } catch (IOException e) {
-                    System.out.println("не удалось прочитать файл");
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+
+                    String line = null;
+                    try {
+                        Message message = connectionService.readMessage();
+                        if (!message.getText().endsWith(".txt") && message != null) {
+                            line = message.getText();
+                        } else if (message.getText().endsWith(".txt")) {
+                            SendFile messageFile = new SendFile(message.getText());
+                            if ("set".equalsIgnoreCase(messageFile.getAction())) {
+                                line = messageFile.getPath() + " " + messageFile.getDescription();
+                            }
+                            System.out.println(line);
+                        }
+                    } catch (IOException e) {
+                        System.out.println("не удалось прочитать файл");
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                } catch (Exception e) {
+                    System.out.println("соединение сброшено");
                 }
-            } catch (Exception e) {
-                System.out.println("соединение сброшено");
+
             }
-
-
         });
         thread1.start();
         thread2.start();

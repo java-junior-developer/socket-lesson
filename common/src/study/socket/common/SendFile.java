@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class SendFile {
+public class SendFile extends Message {
     private String path;
     private int size =5;
     private int description=10;
@@ -62,7 +62,8 @@ public class SendFile {
     }
 
     public SendFile(String path) throws IOException {
-        String[] parts = path.split(" ");
+        super(path);
+        String[] parts = this.text.split(" ");
         this.path=parts[1];
         this.action = parts[0];
         file = new File(this.path);
