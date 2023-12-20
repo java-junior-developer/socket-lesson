@@ -32,7 +32,7 @@ public class Client implements Runnable {
                     if (line.endsWith(".txt")) {
                        Message msg = new Message(line);
                         connectionService.writeMessage(msg);
-
+                        System.out.println(checkMassage(msg));
                     }
                 }
             } catch (IOException e) {
@@ -55,15 +55,7 @@ public class Client implements Runnable {
                     String line = null;
                     try {
                         Message message = connectionService.readMessage();
-                        if (!message.getText().endsWith(".txt") && message != null) {
-                            line = message.getText();
-                        } else if (message.getText().endsWith(".txt")) {
-                            SendFile messageFile = new SendFile(message.getText());
-                            if ("set".equalsIgnoreCase(messageFile.getAction())) {
-                                line = messageFile.getPath() + " " + messageFile.getDescription();
-                            }
-                            System.out.println(line);
-                        }
+
                     } catch (IOException e) {
                         System.out.println("не удалось прочитать файл");
                     } catch (ClassNotFoundException e) {
@@ -79,5 +71,20 @@ public class Client implements Runnable {
         thread2.start();
 
 
+    }
+    private String checkMassage(Message message) throws IOException {
+        if (!message.getText().endsWith(".txt") && message != null) {
+            return message.getText();
+        } else if (message.getText().endsWith(".txt")) {
+            SendFile messageFile = new SendFile(message.getText());
+            if ("set".equalsIgnoreCase(messageFile.getAction())) {
+              return messageFile.getPath() + " " + messageFile.getDescription();
+            }else{
+                return messageFile.getPath() + " " + messageFile.getDescription();
+            }
+
+        }
+
+        return null;
     }
 }

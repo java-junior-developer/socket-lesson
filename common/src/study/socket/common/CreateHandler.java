@@ -38,26 +38,12 @@ public class CreateHandler implements Runnable {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-
-            if (message.getText() != null) {
-                if ("exit".equals(message.getText())) {
-                    return;
-                } else if (!message.getText().endsWith(".txt")) {
-                    System.out.println(message.getText());
-                    try {
-                        getMessageToAllClients(copyOnWriteArraySet, copyOnWriteArraySetF, message);
-                    } catch (IOException e) {
-                        System.out.println("не получилось прочитать данные с сервера");
-                    }
-                }
-
-            } else {
-                try {
-                    getMessageToAllClients(copyOnWriteArraySet, copyOnWriteArraySetF, message);
-                } catch (IOException e) {
-                    System.out.println("не получилось прочитать данные с сервера");
-                }
+            try {
+                checkMessage(message);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+
         }
     }
 
@@ -67,9 +53,7 @@ public class CreateHandler implements Runnable {
             if ("set".equalsIgnoreCase(sendFile.getAction())) {
                 copyOnWriteArraySetF.add(sendFile);
                 for (ConnectionService con : copyOnWriteArraySet) {
-
                     con.writeMessage(message);
-
                 }
             } else {
                 for (SendFile send : copyOnWriteArraySetF) {
@@ -83,6 +67,27 @@ public class CreateHandler implements Runnable {
             }
         }
 
+    }
+    private void checkMessage(Message message) throws IOException {
+        if (message.getText() != null) {
+            if ("exit".equals(message.getText())) {
+                return;
+            } else if (!message.getText().endsWith(".txt")) {
+                System.out.println(message.getText());
+                try {
+                    getMessageToAllClients(copyOnWriteArraySet, copyOnWriteArraySetF, message);
+                } catch (IOException e) {
+                    System.out.println("не получилось прочитать данные с сервера");
+                }
+            }
+
+        } else {
+            try {
+                getMessageToAllClients(copyOnWriteArraySet, copyOnWriteArraySetF, message);
+            } catch (IOException e) {
+                System.out.println("не получилось прочитать данные с сервера");
+            }
+        }
     }
 }
 
