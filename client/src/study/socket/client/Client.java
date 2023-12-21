@@ -18,7 +18,7 @@ public class Client implements Runnable {
             this.connectionService = new ConnectionService(new Socket(inetSocketAddress.getAddress(), inetSocketAddress.getPort()));
         } catch (IOException e) {
             System.out.println("не удалось создать соединение");
-            ;
+            
         }
 
     }
