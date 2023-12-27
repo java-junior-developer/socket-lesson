@@ -10,6 +10,7 @@ import java.util.Map;
 public class Server implements Runnable{
     private int port;
     private Handler handler;
+    //private Cop
     private Map<String,MessageGenerator> generators;
 
     public Server(int port) {
@@ -30,26 +31,24 @@ public class Server implements Runnable{
                 // throws IOException
                 try (ConnectionService service = new ConnectionService(serverSocket.accept())) {
                     Message message = service.readMessage();
-                    handler.setGenerator(generators
-                            .getOrDefault(message.getText(),
-                                    generators.get("/defualt")));
-                    if(("/help").equals(message.getText())){
-                        handler.setGenerator(new HelpGenerator());
-                    }else if(("/ping").equals(message.getText())){
-                        handler.setGenerator(new PingGenerator());}
-                    else {
-                        handler.setGenerator(new DefaultGenerator());}
-                    handler.execute();
+                    //handler.setGenerator(generators
+                   //         .getOrDefault(message.getText(),
+                    //                generators.get("/defualt")));
+                   // if(("/help").equals(message.getText())){
+                   //     handler.setGenerator(new HelpGenerator());
+                   // }else if(("/ping").equals(message.getText())){
+                     //   handler.setGenerator(new PingGenerator());}
+                   // else {
+                   //     handler.setGenerator(new DefaultGenerator());}
+                   // handler.execute();
                     System.out.println(message.getText());
                     service.writeMessage(new Message("from server"));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                     System.out.println("Ошибка подключение клиента");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
-            }
-        } catch (IOException e) {
+        }
+    } catch (IOException e) {
             System.out.println(e.getMessage());
             // скорее всего порт уже занят
             System.out.println("Ошибка создания serverSocket.");
