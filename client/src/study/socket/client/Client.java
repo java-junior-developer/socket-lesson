@@ -18,6 +18,8 @@ public class Client {
     private Scanner scanner;
     private Socket socket;
     private ConnectionService connection;
+    private int maxName = 30;
+    private int maxSize = 1;
 
     public Client(String ip, int port) throws IOException {
         this.ip = ip;
@@ -70,10 +72,15 @@ public class Client {
             } else if (choice.equals("2")) {
                 System.out.println("Введите описание файла:");
                 fileInfo = scanner.nextLine();
+
+                if(fileInfo.length() > maxName){
+                    System.out.println("Слишком длинное название");
+                    continue;
+                }
                 System.out.println("Введите путь к файлу:");
                 message = scanner.nextLine();
                 file = Path.of(message).toFile();
-                if (file.length()/(1024*1024) > 1) {
+                if (file.length()/(1024*1024) > maxSize) {
                     System.out.println("Файл больше 1 Мб");
                     continue;
                 }
