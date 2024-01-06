@@ -45,11 +45,11 @@ public class CreateFile implements Serializable {
             this.file = file;
         }
 
-        public int getDesc() {
+        public int getLen() {
             return len;
         }
 
-        public void setDesc(int desc) {
+        public void setLen(int desc) {
             this.len = desc;
         }
 

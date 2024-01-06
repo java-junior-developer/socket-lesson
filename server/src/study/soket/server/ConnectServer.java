@@ -6,10 +6,13 @@ import study.socket.common.Message;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ConnectServer implements Runnable{
     private ConnectionService service;
     private Server server;
+    private CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet;
+
 
 
     public ConnectServer(ConnectionService service, Server server)
@@ -32,8 +35,10 @@ public class ConnectServer implements Runnable{
                     service.writeInputResult(result);
                 } else if (result.getFile() != null) {
                     result.setMessage(new Message("Загружен новый файл " +
-                            result.getFile().getFile().getName() + " " + result.getFile().getDesc()));
-                    service.writeInputResult(result);
+                            result.getFile().getFile().getName() + " " + result.getFile().getLen()));
+                    for (ConnectionService con : copyOnWriteArraySet) {
+                        service.writeInputResult(result);
+                    }
                 }
             } catch (IOException e) {
                 System.out.println(e.getMessage());

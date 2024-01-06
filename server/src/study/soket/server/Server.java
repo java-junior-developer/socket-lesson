@@ -5,11 +5,13 @@ import study.socket.common.ConnectionService;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server implements Runnable {
     private int port;
+    private CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet = new CopyOnWriteArraySet<>();
 
     public Server(int port) {
         this.port = port;
@@ -23,6 +25,7 @@ public class Server implements Runnable {
             while (true){
                 Socket socket=serverSocket.accept();
                 ConnectionService service = new ConnectionService(socket);
+                copyOnWriteArraySet.add(service);
                 executorService.execute(new ConnectServer(service, this));
             }
         }catch (IOException e) {

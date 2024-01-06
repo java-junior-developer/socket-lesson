@@ -15,7 +15,8 @@ public class ConnectionService implements AutoCloseable{
     private final ObjectOutputStream outputStream;
     private final ObjectInputStream inputStream;
     private InputResult result;
-    private static CopyOnWriteArraySet <CreateFile> listOfFile;
+    private CopyOnWriteArraySet <CreateFile> listOfFile;
+    private CopyOnWriteArraySet <ConnectionService> copyOnWriteArraySet;
 
     public ConnectionService(Socket socket) throws IOException {
         this.socket = Objects.requireNonNull(socket, "socket is null");

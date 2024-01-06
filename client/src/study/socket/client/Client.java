@@ -87,10 +87,8 @@ public class Client implements Runnable {
             thread1.start();
             thread2.start();
         } catch (UnknownHostException e) {
-            System.out.println("Вы тут 1");
             throw new RuntimeException(e);
         } catch (IOException e) {
-            System.out.println("Вы тут 2");
             throw new RuntimeException(e);
         }
     }
