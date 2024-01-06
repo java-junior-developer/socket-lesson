@@ -13,18 +13,13 @@ public class ConnectServer implements Runnable{
 
     public ConnectServer(ServerSocket sv) {
         this.serverSocket = sv;
+    }
 
+    public ConnectServer(ConnectionService connectionService) {
     }
 
     @Override
     public void run() {
-
-        ConnectionService service = null;
-        try {
-            service = new ConnectionService(serverSocket.accept());
-        } catch (IOException e) {
-            System.out.println("не возможно подключиться к серверу");;
-        }
         while (true) {
             try {
                 InputResult result = service.readInputResult();

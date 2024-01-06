@@ -1,8 +1,6 @@
 package study.soket.server;
 
 import study.socket.common.ConnectionService;
-import study.socket.common.InputResult;
-import study.socket.common.Message;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -22,7 +20,12 @@ public class Server implements Runnable {
         ExecutorService executorService = Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(port);){
             System.out.println("Сервер запущен");
-            executorService.execute(new ConnectServer(serverSocket));
+            while (true){
+                Socket socket=serverSocket.accept();
+                ConnectionService service = new ConnectionService(socket);
+                //connections.add(service);
+                executorService.execute(new ConnectServer(new ConnectionService(socket), this));
+            }
         }catch (IOException e) {
             throw new RuntimeException(e);
         }

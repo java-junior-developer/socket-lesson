@@ -35,47 +35,63 @@ public class Client implements Runnable {
     @Override
     public void run() {
         Scanner scanner = new Scanner(System.in);
-        Thread thread1 =new Thread(()-> {
-            while (true) {
+        try {
+            ConnectionService service = new ConnectionService(
+                    new Socket(remoteAddress.getHostName(), remoteAddress.getPort()));
 
-                result.setMessage(null);
-                result.setFile(null);
-                System.out.println("Введите текст путь к файлу или /exit");
-                String text = scanner.nextLine();
-                if (text.equals("/exit")) break;
-                if (text.endsWith(".txt")) {
+            Thread thread1 = new Thread(() -> {
+                while (true) {
 
-                    System.out.println("Введите колличество символов для описания файла");
-                    int len = scanner.nextInt();
-                    System.out.println("Введите размер файла в Mb");
-                    int size = scanner.nextInt();
-                    byte [] array = null;
-                    try {
-                        array = Files.readAllBytes(Paths.get(text));
-                    } catch (IOException e) {
-                        System.out.println("файл не прочитать");
+                    result.setMessage(null);
+                    result.setFile(null);
+                    System.out.println("Введите текст путь к файлу или /exit");
+                    String text = scanner.nextLine();
+                    if (text.equals("/exit")) break;
+                    if (text.endsWith(".txt")) {
+
+                        System.out.println("Введите колличество символов для описания файла");
+                        int len = scanner.nextInt();
+                        System.out.println("Введите размер файла в Mb");
+                        int size = scanner.nextInt();
+                        byte[] array = null;
+                        try {
+                            array = Files.readAllBytes(Paths.get(text));
+                        } catch (IOException e) {
+                            System.out.println("файл не прочитать");
+                        }
+                        result.setFile(new CreateFile(new File(text), text, len, size, array));
+
+                    } else {
+                        result.setMessage(new Message(text));
                     }
-                    result.setFile(new CreateFile(new File(text), text, len, size, array));
-
-                } else {
-                    result.setMessage(new Message(text));
                 }
-            }
-        });
+            });
 
-        Thread thread2 = new Thread(()->{
-            try (Socket socket = new Socket()) {
-                socket.connect(remoteAddress);
-                try (ConnectionService service = new ConnectionService(socket)) {
-                    service.writeInputResult(result);
-                    InputResult result1 = service.readInputResult();
+            Thread thread2 = new Thread(() -> {
+                while (true) {
+                    try {
+                        service.writeInputResult(result);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    InputResult result1 = null;
+                    try {
+                        result1 = service.readInputResult();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     System.out.println(result1.getMessage().getText());
                 }
 
-            } catch (IOException e) {
-                System.out.println("Сервер не отвечает");
-            }
-
-        });
+            });
+            thread1.start();
+            thread2.start();
+        } catch (UnknownHostException e) {
+            System.out.println("Вы тут 1");
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            System.out.println("Вы тут 2");
+            throw new RuntimeException(e);
+        }
     }
 }

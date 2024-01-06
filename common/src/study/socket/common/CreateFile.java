@@ -1,6 +1,8 @@
 package study.socket.common;
 import java.io.File;
-public class CreateFile {
+import java.io.Serializable;
+
+public class CreateFile implements Serializable {
 
         private File  file;
         private String name;
