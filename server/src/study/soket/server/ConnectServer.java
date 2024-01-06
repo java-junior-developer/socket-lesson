@@ -37,7 +37,7 @@ public class ConnectServer implements Runnable{
                     result.setMessage(new Message("Загружен новый файл " +
                             result.getFile().getFile().getName() + " " + result.getFile().getLen()));
                     for (ConnectionService con : copyOnWriteArraySet) {
-                        service.writeInputResult(result);
+                        con.writeInputResult(result);
                     }
                 }
             } catch (IOException e) {
