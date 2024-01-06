@@ -23,8 +23,7 @@ public class Server implements Runnable {
             while (true){
                 Socket socket=serverSocket.accept();
                 ConnectionService service = new ConnectionService(socket);
-                //connections.add(service);
-                executorService.execute(new ConnectServer(new ConnectionService(socket), this));
+                executorService.execute(new ConnectServer(service, this));
             }
         }catch (IOException e) {
             throw new RuntimeException(e);

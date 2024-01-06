@@ -8,11 +8,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 public class ConnectServer implements Runnable{
-    private ServerSocket serverSocket;
+    private ConnectionService service;
+    private Server server;
 
 
-    public ConnectServer(ServerSocket sv) {
-        this.serverSocket = sv;
+    public ConnectServer(ConnectionService service, Server server)
+    {
+        this.service = service;
+        this.server = server;
     }
 
     public ConnectServer(ConnectionService connectionService) {
