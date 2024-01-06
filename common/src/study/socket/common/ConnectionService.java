@@ -11,16 +11,24 @@ public class ConnectionService implements AutoCloseable {
     private Socket socket;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
+    private String sender;
 
     public ConnectionService(Socket socket) throws IOException {
         this.socket = Objects.requireNonNull(socket, "socet is null");
-        this.outputStream = new ObjectOutputStream(socket.getOutputStream());
-        this.inputStream = new ObjectInputStream(socket.getInputStream());
+        outputStream = new ObjectOutputStream(this.socket.getOutputStream());
+        inputStream = new ObjectInputStream(this.socket.getInputStream());
 
     }
+    public void setSender(String senders) {
+        this.sender = senders;
+    }
 
-    public void writeMessage(Message message) throws IOException {
-        message.setSentAt(ZonedDateTime.now());
+    public String getSender() {
+        return sender;
+    }
+
+    public void sendMessage(Message message) throws IOException {
+        message.setDateTime();
         outputStream.writeObject(message);
         outputStream.flush();
     }

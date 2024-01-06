@@ -1,58 +1,126 @@
 package study.soket.server;
+
 import study.socket.common.ConnectionService;
 import study.socket.common.Message;
+import study.socket.common.SaveFiles;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
-public class Server implements Runnable{
-    private int port;
-    private Handler handler;
-    //private Cop
-    private Map<String,MessageGenerator> generators;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.LinkedBlockingQueue;
 
-    public Server(int port) {
-        this.port = port;
-        this.handler = new Handler(new DefaultGenerator());
-       // generators.put("/help",new HelpGenerator());
-       // generators.put("/ping",new PingGenerator());
-       // generators.put("/popular",new PopularGenerator());
-        //generators.put("/defualt",new DefaultGenerator());
+public class Server {
+    private static final int PORT = 8090;
+    private CopyOnWriteArraySet<ConnectionService> senders = new CopyOnWriteArraySet<>();
+    private LinkedBlockingQueue<Message> messages = new LinkedBlockingQueue<>();
+    private ArrayList<SaveFiles> files = new ArrayList<SaveFiles>();
+
+    public void run() throws IOException {
+        ServerSocket serverSocket = new ServerSocket(PORT);
+        System.out.println("Server started");
+        new Thread(new Writer()).start();
+
+        while (true) {
+            Socket socket = serverSocket.accept();
+            new Thread(new Reader(new ConnectionService(socket))).start();
+        }
     }
 
-    @Override
-    public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Сервер запущен");
+    class Reader implements Runnable {
+        ConnectionService connection;
 
+        public Reader(ConnectionService connection) {
+            this.connection = connection;
+            senders.add(connection);
+        }
+
+        @Override
+        public void run() {
             while (true) {
-                // throws IOException
-                try (ConnectionService service = new ConnectionService(serverSocket.accept())) {
-                    Message message = service.readMessage();
-                    //handler.setGenerator(generators
-                   //         .getOrDefault(message.getText(),
-                    //                generators.get("/defualt")));
-                   // if(("/help").equals(message.getText())){
-                   //     handler.setGenerator(new HelpGenerator());
-                   // }else if(("/ping").equals(message.getText())){
-                     //   handler.setGenerator(new PingGenerator());}
-                   // else {
-                   //     handler.setGenerator(new DefaultGenerator());}
-                   // handler.execute();
-                    System.out.println(message.getText());
-                    service.writeMessage(new Message("from server"));
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    System.out.println("Ошибка подключение клиента");
+                try {
+                    Message message = connection.readMessage();
+                    if (message.getText().equals("exit")) {
+                        senders.remove(connection);
+                        break;
+                    }
+                    messages.put(message);
+                    connection.setSender(message.getSender());
+                } catch (InterruptedException | IOException e) {
+                    e.printStackTrace();
                 }
+            }
         }
-    } catch (IOException e) {
-            System.out.println(e.getMessage());
-            // скорее всего порт уже занят
-            System.out.println("Ошибка создания serverSocket.");
-        }
-
     }
+
+    class Writer implements Runnable {
+
+        @Override
+        public void run() {
+            Message messageOut = null;
+            while (true) {
+                try {
+                    messageOut = messages.take();
+                    String sender = messageOut.getSender();
+                    for (ConnectionService c : senders) {
+                        //if (!Objects.requireNonNull(sender).equals(c.getSender())) {
+                        if (messageOut.getFile() != null) {
+                            SaveFiles file = new SaveFiles(messageOut.getFileInfo(), messageOut.getFile());
+                            files.add(file);
+                            Path path = Paths.get("./SaveFiles/" + "file_from_client_" + messageOut.getSender() + "_" + file.getFile().getName());
+                            byte[] fileContent = Files.readAllBytes(file.getFile().toPath());
+                            Files.write(path, fileContent);
+                            Message saveFiles = new Message(sender, "", file.getFile(), file.getFileInfo(), null, null);
+                            try {
+                                c.sendMessage(saveFiles);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (messageOut.getText().equals("3")) {
+                            StringBuilder str = new StringBuilder();
+                            int count = 0;
+                            for (SaveFiles f : files) {
+                                str.append("\n");
+                                str.append(count + ". Описание файла: " + f.getFileInfo() + ". Файл: " + f.getFile().getName());
+                                str.append("\n");
+                                count++;
+                            }
+                            Message messageFiles = new Message(sender, "", null, null, str.toString(), null);
+                            try {
+                                c.sendMessage(messageFiles);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (messageOut.getSelectFile() != null) {
+                            Message messageFileOut = new Message(sender, "", files.get(messageOut.getSelectFile()).getFile(), null, null, messageOut.getSelectFile());
+                            try {
+                                c.sendMessage(messageFileOut);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                c.sendMessage(messageOut);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        // }
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
 }
