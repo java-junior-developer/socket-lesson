@@ -6,13 +6,13 @@ public class CreateFile implements Serializable {
 
         private File  file;
         private String name;
-        private int len;
-        private int size;
+        private int len = 1000;
+        private int size = 5;
         byte[] array;
 
         public CreateFile(File file, String name, int len, int size, byte [] array) {
 
-            if (file.getName().length() < len && file.getName().endsWith(".txt") && file.getUsableSpace() < size) {
+            if (/*file.getName().length() < len &&*/ file.getName().endsWith(".txt") /*&& file.getUsableSpace() < size*/) {
                 this.name = name;
                 this.file = file;
                 this.array=array;

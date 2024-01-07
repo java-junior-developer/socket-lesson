@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 public class Server implements Runnable {
     private int port;
-    private CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet = new CopyOnWriteArraySet<>();
+    private CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet;
 
     public Server(int port) {
         this.port = port;
@@ -25,7 +25,7 @@ public class Server implements Runnable {
             while (true){
                 Socket socket=serverSocket.accept();
                 ConnectionService service = new ConnectionService(socket);
-                copyOnWriteArraySet.add(service);
+                //copyOnWriteArraySet.add(service);
                 executorService.execute(new ConnectServer(service, this));
             }
         }catch (IOException e) {

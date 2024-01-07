@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class ConnectServer implements Runnable{
     private ConnectionService service;
     private Server server;
-    private CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet;
+    private CopyOnWriteArraySet<ConnectionService> copyOnWriteArraySet = new CopyOnWriteArraySet<>();
 
 
 
@@ -27,6 +27,7 @@ public class ConnectServer implements Runnable{
     @Override
     public void run() {
         while (true) {
+            copyOnWriteArraySet.add(service);
             try {
                 InputResult result = service.readInputResult();
                 if (result.getMessage() != null) {
@@ -37,12 +38,16 @@ public class ConnectServer implements Runnable{
                     result.setMessage(new Message("Загружен новый файл " +
                             result.getFile().getFile().getName() + " " + result.getFile().getLen()));
                     for (ConnectionService con : copyOnWriteArraySet) {
-                        con.writeInputResult(result);
+                        if (con != service) {
+                            con.writeInputResult(result);
+                        }
                     }
                 }
             } catch (IOException e) {
                 System.out.println(e.getMessage());
                 System.out.println("Ошибка подключение клиента");
+            }finally {
+                copyOnWriteArraySet.remove(service);
             }
 
         }
