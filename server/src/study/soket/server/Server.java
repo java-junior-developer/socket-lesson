@@ -49,12 +49,13 @@ public class Server {
                     Message message = connection.readMessage();
                     if (message.getText().equals("exit")) {
                         senders.remove(connection);
-                        break;
+                        continue;
                     }
                     messages.put(message);
                     connection.setSender(message.getSender());
                 } catch (InterruptedException | IOException e) {
                     e.printStackTrace();
+                    senders.remove(connection);
                 }
             }
         }
@@ -110,12 +111,15 @@ public class Server {
                                 c.sendMessage(messageOut);
                             } catch (IOException e) {
                                 e.printStackTrace();
+
                             }
                         }
-                        // }
+
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

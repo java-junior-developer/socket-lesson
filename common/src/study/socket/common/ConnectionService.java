@@ -35,7 +35,7 @@ public class ConnectionService implements AutoCloseable {
     public Message readMessage() throws IOException{
         try {
             return (Message) inputStream.readObject();
-        }catch (ClassNotFoundException e){
+        }catch (ClassNotFoundException  | IOException e){
             throw new RuntimeException(e);
         }
     }
